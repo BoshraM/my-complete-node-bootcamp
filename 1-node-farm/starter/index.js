@@ -1,6 +1,7 @@
 const fs = require('fs');//file system 
-const http= require("http")
-const url= require("url") //// -----> 11 routing
+const http= require("http");
+const url= require("url"); //// -----> 11 routing
+// const slugify = require("slugify"); ====> 19 for practice dependecies
 const replaceTemplate = require('./modules/replaceTemplate')
 //Blocking, synchronous
 // const textIn=fs.readFileSync('./txt/input.txt', 'utf-8');
@@ -35,8 +36,13 @@ const tempProduct = fs.readFileSync(`${__dirname}/templates/template-product.htm
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8')//=====> we use sync because this code just run once so it wont block
 const dataObject = JSON.parse(data);
 
+////HOW SLIGIFY WORK WITH ITS DEPENDIES ======> 19////
+// const slugs = dataObject.map(el => slugify(el.productName, { lower: true}));
+// console.log(slugs);
+// console.log(slugify('fresh Avacodo', { lower: true}));
+
 const server = http.createServer((req,res) => {
-    const { query, pathname } = url.parse(req.url, true)
+    const { query, pathname } = url.parse(req.url, true);
   
 
     /////routing ----->11
