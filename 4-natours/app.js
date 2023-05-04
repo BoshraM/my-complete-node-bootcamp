@@ -1,35 +1,42 @@
 const fs = require('fs');
 const express = require("express");
+const morgan = require('morgan')
 
 const app = express();
 
-app.use(express.json())
+//1- MIDDLEWARES
+app.use(morgan('dev'));
 
-// app.get('/', (req, res) => {
-//   res
-//     .status(200)
-//     .json({ message: 'Hello from the server side', app: 'Natours' });
-// });
+app.use(express.json());
 
-// app.post('/', (req, res) => {
-//   res.send(' you can post to this endpoint...')
-// })
+app.use((req, res, next) => {
+  console.log('Hello from the middlware');
+  next();
+});
+
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next();
+});
 
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
-app.get('/api/v1/tours', (req, res) => {
+//2- ROETES HANDLER 
+const getAllTours = (req, res) => {
+  console.log(req.requestTime);
   res.status(200).json({
     status: 'seccess',
+    requestedID: req.requestTime,
     results: tours.length,
     data: {
       tours
     }
   })
-});
+}
 
-app.get('/api/v1/tours/:id', (req, res) => { // ====> /api/v1/tours/:id/:y?'  in this way the y will be optional
+const getTour = (req, res) => { // ====> /api/v1/tours/:id/:y?'  in this way the y will be optional
   const id = +req.params.id
 
   //first solution for invalid id
@@ -53,12 +60,9 @@ app.get('/api/v1/tours/:id', (req, res) => { // ====> /api/v1/tours/:id/:y?'  in
       tour
     }
   });
+};
 
-
-});
-
-
-app.post('/api/v1/tours', (req, res) => {
+const createTour = (req, res) => {
   // console.log(req.body);
 
   const newId = tours[tours.length - 1].id + 1;
@@ -74,9 +78,9 @@ app.post('/api/v1/tours', (req, res) => {
     })
   });
 
-});
+}
 
-app.patch('/api/v1/tours/:id', (req, res) => {
+const updateTour = (req, res) => {
   if (req.params.id > tours.length) {
     return res.status(404).json({
       status: "fail",
@@ -89,9 +93,9 @@ app.patch('/api/v1/tours/:id', (req, res) => {
       tour: "<Updated from here...>"
     }
   });
-});
+}
 
-app.delete('/api/v1/tours/:id', (req, res) => {
+const deleteTour = (req, res) => {
   if (req.params.id > tours.length) {
     return res.status(404).json({
       status: "fail",
@@ -102,8 +106,78 @@ app.delete('/api/v1/tours/:id', (req, res) => {
     status: "success",
     data: null
   });
-});
+};
 
+const getAllUsers = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined!'
+  })
+};
+
+const getUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined!'
+  })
+};
+
+const createUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined!'
+  })
+};
+
+const updateUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined!'
+  })
+};
+
+const deleteUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined!'
+  })
+};
+//  ALL OF THIS CAN WRITE ON THE ROUTE SO THESE HAS CHANGED TO ROUTES
+// app.get('/api/v1/tours', getAllTours);
+// app.get('/api/v1/tours/:id', getTour);
+// app.post('/api/v1/tours', creatTour);
+// app.patch('/api/v1/tours/:id', updateTour);
+// app.delete('/api/v1/tours/:id', deleteTour);
+
+//3-ROUTES
+const tourRouter = express.Router();
+const userRouter = express.Router();
+
+tourRouter
+  .route('/')
+  .get(getAllTours)
+  .post(createTour)
+
+tourRouter
+  .route('/:id')
+  .get(getTour)
+  .patch(updateTour)
+  .delete(deleteTour)
+
+userRouter
+  .route('/api/v1/users')
+  .get(getAllUsers)
+  .post(createUser)
+
+userRouter
+  .route('/api/v1/users/:id')
+  .get(getUser)
+  .patch(updateUser)
+  .delete(deleteUser)
+
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
+// 4- START SERVER
 const port = 3000;
 app.listen(port, () => {
   console.log(`App running on port ${port}...`)
