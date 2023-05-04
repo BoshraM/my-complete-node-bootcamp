@@ -1,6 +1,6 @@
 const fs = require('fs');//file system 
-const http= require("http");
-const url= require("url"); //// -----> 11 routing
+const http = require("http");
+const url = require("url"); //// -----> 11 routing
 // const slugify = require("slugify"); ====> 19 for practice dependecies
 const replaceTemplate = require('./modules/replaceTemplate')
 //Blocking, synchronous
@@ -41,33 +41,32 @@ const dataObject = JSON.parse(data);
 // console.log(slugs);
 // console.log(slugify('fresh Avacodo', { lower: true}));
 
-const server = http.createServer((req,res) => {
+const server = http.createServer((req, res) => {
     const { query, pathname } = url.parse(req.url, true);
-  
 
     /////routing ----->11
     //OVERVIEW PAGE
-    if(pathname==='/' || pathname=== '/overview'){
-        res.writeHead(200, { 'Content-Type': 'text/html'})
+    if (pathname === '/' || pathname === '/overview') {
+        res.writeHead(200, { 'Content-Type': 'text/html' })
 
         const cardHtml = dataObject.map((el) => replaceTemplate(tempCard, el)).join('');
-        const output=tempOverview.replace('{%PRODUCT-CARDS%}', cardHtml);
+        const output = tempOverview.replace('{%PRODUCT-CARDS%}', cardHtml);
         res.end(output);
 
-    //PRODUCT PAGE
-    } else if (pathname === '/product'){
-        res.writeHead(200, { 'Content-Type': 'text/html'})
+        //PRODUCT PAGE
+    } else if (pathname === '/product') {
+        res.writeHead(200, { 'Content-Type': 'text/html' })
         const product = dataObject[query.id]
         const output = replaceTemplate(tempProduct, product)
         res.end(output)
 
-    /////API
-    } else if (pathname === '/api'){
-        res.writeHead(200, { 'Content-Type': 'aplication/json'})
+        /////API
+    } else if (pathname === '/api') {
+        res.writeHead(200, { 'Content-Type': 'aplication/json' })
         res.end(data)
 
-    //not found
-      } else {
+        //not found
+    } else {
         res.writeHead(404, {
             'Content-type': 'text/html',
             'my-own-header': 'hello world'
@@ -76,8 +75,9 @@ const server = http.createServer((req,res) => {
     }
 });
 
+
 ////API =====>IS A SERVICE FROM WHICH WE CAN REQUEST SOME DATA////
 
-server.listen(8000, '127.0.0.1'/*this is not need*/ , () => {
+server.listen(8000, '127.0.0.1'/*this is not need*/, () => {
     console.log('Listening to requests on port 8000')
 });
